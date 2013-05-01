@@ -24,7 +24,7 @@ function init() {
 }
 
 function load_level() {
-  cube = create_cube(8, 8, 8, 1);
+  cube = create_cube(8, 8, 8, 0.2);
   cube.position.set(0, 50, 0);
   scene.add(cube);
 
