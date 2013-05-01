@@ -1,7 +1,7 @@
 'use strict';
 
-Physijs.scripts.worker = '/js/physijs_worker.js'
-Physijs.scripts.ammo = '/js/ammo.js'
+Physijs.scripts.worker = 'js/physijs_worker.js'
+Physijs.scripts.ammo = 'js/ammo.js'
 
 var WIDTH = 600, HEIGHT = 600;
 var VIEW_ANGLE = 45, ASPECT = WIDTH / HEIGHT, NEAR = 0.1, FAR = 10000;
