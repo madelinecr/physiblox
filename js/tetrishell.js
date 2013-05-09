@@ -52,7 +52,8 @@ function tick() {
   if(typeof(current_block) === 'undefined' || current_block == null) {
     console.log(current_block);
     current_block = get_block();
-    current_block.position.set(0, 100, 0);
+    console.log(current_block.width);
+    current_block.position.set(0, 100, current_block.userData.offset_amount * CUBE_SIZE);
     scene.add(current_block);
   }
   if(input_manager.left == true) {
@@ -94,8 +95,20 @@ function create_cube(width, height, length, mass, color) {
   return cube;
 }
 
+function create_long() {
+  var piece = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
+  piece.userData.offset_amount = 1.5;
+  for(var i = 1; i < 4; i++) {
+    var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
+    block.position.add(new THREE.Vector3(0, 0, -i * CUBE_SIZE));
+    piece.add(block);
+  }
+  return piece;
+}
+
 function get_block() {
-  var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
+  //var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
+  var block = create_long();
   block.disabled = false;
   block.handle_collision = function(collided_with, linear_velocity, angular_velocity) {
     if(collided_with != left_wall && collided_with != right_wall 
