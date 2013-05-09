@@ -12,14 +12,14 @@ var $container = $('#container');
 var renderer, camera, scene, input_manager;
 var current_block;
 
-var ground, left_wall, right_wall;
+var ground, left_wall, right_wall, rear_blockguard, front_blockguard;
 
 function init() {
   renderer = new THREE.WebGLRenderer();
   camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
   scene = new Physijs.Scene();
 
-  camera.position.set( 300, 0, 0 );
+  camera.position.set( 300, 100, 0 );
   camera.lookAt(new THREE.Vector3(0, 0, 0));
   renderer.setSize(WIDTH, HEIGHT);
   renderer.setClearColorHex(0x111111, 1.0);
@@ -34,13 +34,23 @@ function load_level() {
   left_wall = create_cube(10, 200, 1, 0, 0x333333);
   right_wall = create_cube(10, 200, 1, 0, 0x333333);
 
+  // invisible walls that keep pieces from falling out
+  front_blockguard = create_cube(1, 200, 100, 0);
+  front_blockguard.visible = false;
+  rear_blockguard = create_cube(1, 200, 100, 0);
+  rear_blockguard.visible = false;
+
   ground.position.set(0, -100, 0);
   left_wall.position.set(0, 0, 50);
   right_wall.position.set(0, 0, -50);
+  front_blockguard.position.set(7, 0, 0);
+  rear_blockguard.position.set(-7, 0, 0);
   
   scene.add(ground);
   scene.add(left_wall);
   scene.add(right_wall);
+  scene.add(front_blockguard);
+  scene.add(rear_blockguard);
 
   // Add light to the scene
   var pointlight = new THREE.PointLight( 0x999999, 2 );
@@ -50,9 +60,7 @@ function load_level() {
 
 function tick() {
   if(typeof(current_block) === 'undefined' || current_block == null) {
-    console.log(current_block);
     current_block = get_block();
-    console.log(current_block.width);
     current_block.position.set(0, 100, current_block.userData.offset_amount * CUBE_SIZE);
     scene.add(current_block);
   }
@@ -107,12 +115,19 @@ function create_long() {
 }
 
 function get_block() {
-  //var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
+  var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
   var block = create_long();
   block.disabled = false;
   block.handle_collision = function(collided_with, linear_velocity, angular_velocity) {
-    if(collided_with != left_wall && collided_with != right_wall 
-       && this.disabled == false) {
+    if(collided_with == left_wall) {
+      return;
+    } else if(collided_with == right_wall) {
+      return;
+    } else if(collided_with == rear_blockguard) {
+      return;
+    } else if(collided_with == front_blockguard) {
+      return;
+    } else if(this.disabled == false) {
       this.disabled = true;
       current_block = null;
     }
