@@ -61,13 +61,22 @@ function load_level() {
 function tick() {
   if(typeof(current_block) === 'undefined' || current_block == null) {
     current_block = get_block();
-    current_block.position.set(0, 100, current_block.userData.offset_amount * CUBE_SIZE);
+    current_block.position.set(0, 100, 0);
     scene.add(current_block);
   }
   if(input_manager.left == true) {
     current_block.applyCentralForce( new THREE.Vector3(0, 0, MOVE_FORCE) );
-  } else if(input_manager.right == true) {
+  } if(input_manager.right == true) {
     current_block.applyCentralForce( new THREE.Vector3(0, 0, -MOVE_FORCE) );
+  } if(input_manager.rot_left == true) {
+    console.log("rotate left");
+    var force_vector = new THREE.Vector3(0, 0, 0.2);
+    var offset_vector = new THREE.Vector3(0, 20, 0);
+    current_block.applyImpulse(force_vector, offset_vector);
+  } if(input_manager.rot_right == true) {
+    var force_vector = new THREE.Vector3(0, 0, -0.2);
+    var offset_vector = new THREE.Vector3(0, 20, 0);
+    current_block.applyImpulse(force_vector, offset_vector);
   }
 }
 
@@ -81,16 +90,26 @@ function render() {
 input_manager = {
   left: false,
   right: false,
+  rot_left: false,
+  rot_right: false
 }
 
 function on_key_event(event) {
   var direction = (event.type == 'keydown') ? true : false
+  var rot_direction = (event.type == 'keydown') ? true : false
+  console.log(event.keyCode);
   switch(event.keyCode) {
     case 37:
       input_manager.left = direction;
       break;
     case 39:
       input_manager.right = direction;
+      break;
+    case 88:
+      input_manager.rot_right = rot_direction;
+      break;
+    case 90:
+      input_manager.rot_left = rot_direction;
       break;
   }
 }
@@ -104,18 +123,17 @@ function create_cube(width, height, length, mass, color) {
 }
 
 function create_long() {
-  var piece = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
+  var piece = create_cube(1, 1, 1, CUBE_MASS);
   piece.userData.offset_amount = 1.5;
-  for(var i = 1; i < 4; i++) {
+  for(var i = 1; i <= 4; i++) {
     var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
-    block.position.add(new THREE.Vector3(0, 0, -i * CUBE_SIZE));
+    block.position.add(new THREE.Vector3(0, 0, (i-2.5) * CUBE_SIZE));
     piece.add(block);
   }
   return piece;
 }
 
 function get_block() {
-  var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
   var block = create_long();
   block.disabled = false;
   block.handle_collision = function(collided_with, linear_velocity, angular_velocity) {
