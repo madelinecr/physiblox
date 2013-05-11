@@ -30,14 +30,14 @@ function init() {
 }
 
 function load_level() {
-  ground = create_cube(10, 1, 100, 0, 0x333333);
-  left_wall = create_cube(10, 200, 1, 0, 0x333333);
-  right_wall = create_cube(10, 200, 1, 0, 0x333333);
+  ground = create_wall(10, 1, 100, 0);
+  left_wall = create_wall(10, 200, 1, 0);
+  right_wall = create_wall(10, 200, 1, 0);
 
   // invisible walls that keep pieces from falling out
-  front_blockguard = create_cube(1, 200, 100, 0);
+  front_blockguard = create_wall(1, 200, 100);
   front_blockguard.visible = false;
-  rear_blockguard = create_cube(1, 200, 100, 0);
+  rear_blockguard = create_wall(1, 200, 100);
   rear_blockguard.visible = false;
 
   ground.position.set(0, -100, 0);
@@ -114,19 +114,27 @@ function on_key_event(event) {
   }
 }
 
-function create_cube(width, height, length, mass, color) {
+function create_wall(width, height, length) {
+  var wall_geom  = new THREE.CubeGeometry(width, height, length);
+  var wall_mat  = new THREE.MeshLambertMaterial({ color: 0x333333 });
+  var wall = new Physijs.BoxMesh(wall_geom, wall_mat, 0);
+  return wall;
+}
+
+
+function create_cube(width, height, length, color) {
   if(typeof(color) === 'undefined') color = 0x00CC00;
-  var cube_geom  = new THREE.CubeGeometry(width, height, length);
-  var cube_mat  = new THREE.MeshLambertMaterial({ color: color });
-  var cube = new Physijs.BoxMesh(cube_geom, cube_mat, mass);
+  color += Math.random() * 0x010101;
+  var cube_geom = new THREE.CubeGeometry(width, height, length);
+  var cube_mat = new THREE.MeshLambertMaterial({ color: color });
+  var cube = new Physijs.BoxMesh(cube_geom, cube_mat, CUBE_MASS);
   return cube;
 }
 
 function create_long() {
   var piece = create_cube(1, 1, 1, CUBE_MASS);
-  piece.userData.offset_amount = 1.5;
   for(var i = 1; i <= 4; i++) {
-    var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_MASS);
+    var block = create_cube(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0xCC00CC);
     block.position.add(new THREE.Vector3(0, 0, (i-2.5) * CUBE_SIZE));
     piece.add(block);
   }
